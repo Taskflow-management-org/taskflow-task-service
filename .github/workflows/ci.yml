@@ -29,12 +29,12 @@ jobs:
         run: chmod +x mvnw
 
       - name: Build & Run Maven Tests
-        run: ./mvnw clean verify
+        run: ./mvnw clean verify -Dspring.profiles.active=test
 
   docker-build-and-push:
     needs: unit-test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/development' || github.ref == 'refs/head/main')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/development' || github.ref == 'refs/heads/main')
 
     steps:
       - name: Checkout Code
