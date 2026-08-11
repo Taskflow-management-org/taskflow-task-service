@@ -1,4 +1,8 @@
 package com.thamindu.task_manager.enums;
 
-public enum TaskProority {
+public enum TaskPriority {
+    LOW,
+    MEDIUM,
+    HIGH,
+    URGENT
 }
