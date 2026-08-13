@@ -60,7 +60,7 @@ jobs:
             ${{secrets.DOCKERHUB_USERNAME}}/taskflow-task-service:${{github.sha}}
 
   cd-deploy:
-    needs: docker-build-and-push
+    needs: unit-test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
