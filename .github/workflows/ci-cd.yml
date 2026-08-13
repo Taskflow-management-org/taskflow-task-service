@@ -60,7 +60,7 @@ jobs:
             ${{secrets.DOCKERHUB_USERNAME}}/taskflow-task-service:${{github.sha}}
 
   cd-deploy:
-    needs: docker-build-and-push
+    needs: unit-test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
@@ -73,9 +73,19 @@ jobs:
           key: ${{secrets.EC2_SSH_KEY}}
           script: |
             cd ~/app
-            docker compose -f docker-compose.app.yml pull task-service
-            docker compose -f docker-compose.app.yml up -d task-service
-            docker system prune -f
+            if [ -f docker-compose-app.yml ]; then
+              echo "Pulling latest task-service image..." 
+              docker compose -f docker-compose-app.yml pull task-service
+            
+              echo "Starting task-service container..."
+              docker compose -f docker-compose-app.yml up -d task-service
+            
+              echo "Cleaning up old unused docker images..."
+              docker system prune -f
+            else
+              echo "Error: docker-compose.app.yml not found in ~/app directory!"
+              exit 1
+            fi
         
             
             
