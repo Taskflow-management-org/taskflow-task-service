@@ -1,4 +1,4 @@
-name: ci.yml
+name: ci-cd.yml
 on:
   push:
     branches:
@@ -58,5 +58,24 @@ jobs:
           tags: |
             ${{secrets.DOCKERHUB_USERNAME}}/taskflow-task-service:latest
             ${{secrets.DOCKERHUB_USERNAME}}/taskflow-task-service:${{github.sha}}
-            
+
+  cd-deploy:
+    needs: docker-build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy to AWS EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{secrets.EC2_HOST}}
+          username: ubuntu
+          key: ${{secrets.EC2_SSH_KEY}}
+          script: |
+            cd ~/app
+            docker compose -f docker-compose.app.yml pull task-service
+            docker compose -f docker-compose.app.yml up -d task-service
+            docker system prune -f
         
+            
+            
